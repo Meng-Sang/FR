@@ -14,6 +14,18 @@ class Embeddings(object):
         self.recognition = get_model_recognition(cfg.recognition)
 
     def get_embeddings(self, img):
+        """
+            args:
+                img: 一张图片，图片是GBR通道（w,h,c）
+            return:
+                face_embeddings: 如果他返回None 代表整张图片上不存在人脸、如果返回是具体的向量向量形式是(n,v)
+                boxes_conf_landmarks: 如果这个返回是None，也代表不存在人脸，如果返回的是具体向量(n,15)
+                上面的n代表的是人脸的数目，v代表的是向量的长度
+
+            note:
+                如果进行编码：一张图片只允许包含0或1张人脸
+                如果进行识别：一张图片可以包>=0张人脸
+        """
         old_image = img.copy()
         scale, scale_for_landmarks = get_scale_output(img)
         anchors = get_anchors(self.cfg.retina)

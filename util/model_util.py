@@ -6,6 +6,7 @@ from recognition_net.arcface.backbones import get_model
 from conf.config import get_config
 from nets_retinaface.retinaface import RetinaFace
 
+
 def get_model_detect(retina):
     retina_net = RetinaFace(retina.net_cfg, pre_train=False, phase="eval")
     retina_net.eval()
@@ -23,7 +24,8 @@ def get_model_recognition(recognition):
                            split=recognition.split).to(recognition.device)
     elif recognition.model_type == "insightface_pytorch":
         from recognition_net.insightface_pytorch.model import Backbone
-        resnet = Backbone(recognition, recognition.net_depth, recognition.drop_ratio, recognition.net_mode).to(recognition.device)
+        resnet = Backbone(recognition, recognition.net_depth, recognition.drop_ratio, recognition.net_mode).to(
+            recognition.device)
     else:
         raise Exception("not exist this type")
     resnet.eval()

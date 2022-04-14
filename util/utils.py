@@ -30,10 +30,10 @@ def image_process_for_detect(img, cfg):
 
 
 def image_process_for_recognition(img, boxes_conf_landmark, cfg):
-    if cfg.recognition.alignment:
-        img = alignment(img, np.reshape(boxes_conf_landmark[5:], (5, 2)))
     img = np.array(img)[int(boxes_conf_landmark[1]):int(boxes_conf_landmark[3]),
           int(boxes_conf_landmark[0]):int(boxes_conf_landmark[2])]
+    if cfg.recognition.alignment:
+        img = alignment(img, np.reshape(boxes_conf_landmark[5:], (5, 2)))
     # img = alignment(img, landmark)
     # img = letterbox_image(img, [cfg.recognition.input_shape[0], cfg.recognition.input_shape[0]])
     img = cv2.resize(img, [cfg.recognition.input_shape[0], cfg.recognition.input_shape[0]])
@@ -65,6 +65,22 @@ def compare_dist(embeddings, threshold, db_embeddings, ids):
     # print(min_dist)
     return name
 
+def compare_dist_two(embeddings,embeddings_arc,threshold, db_embeddings,db_embeddings_arc, ids,max_dist,max_dist_arc):
+    assert type(embeddings) == np.ndarray
+    assert type(db_embeddings) == np.ndarray
+    assert type(ids) == np.ndarray
+    assert type(embeddings_arc) == np.ndarray
+    assert type(db_embeddings_arc) == np.ndarray
+    dist_matrix = (2 - 2 * embeddings @ db_embeddings.T)/max_dist
+    dist_matrix_arc = (2 - 2 * embeddings_arc @ db_embeddings_arc.T)/max_dist_arc
+    dist_matrix += dist_matrix_arc
+    min_index = np.argmin(dist_matrix, axis=-1)
+    row_index = np.arange(0, dist_matrix.shape[0])
+    min_dist = dist_matrix[row_index, min_index].view()
+    name = ids[min_index]
+    name[min_dist > threshold] = "Unknown"
+    # print(min_dist)
+    return name
 
 def preprocess_input(image):
     image -= np.array((104, 117, 123), np.float32)
